@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banana Softness Predictor</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Banana Softness Predictor</h1>
+      <input type="text" id="days" placeholder="Enter Days of Ripening" />
+      <button onclick="predictSoftness()">Predict Softness</button>
+      <p id="result"></p>
+    </div>
+
+    <script>
+      async function predictSoftness() {
+        let daysInput = document.getElementById("days").value.trim();
+
+        if (daysInput === "") {
+          document.getElementById("result").innerText =
+            "Please enter a number!";
+          return;
+        }
+
+        let days = Number(daysInput);
+
+        if (isNaN(days)) {
+          document.getElementById("result").innerText =
+            "Please enter a valid number!";
+          return;
+        }
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ days: days }), // Send numeric value
+          });
+
+          const data = await response.json();
+          if (data.softness !== undefined) {
+            document.getElementById(
+              "result"
+            ).innerText = `Predicted Softness: ${data.softness}`;
+          } else {
+            document.getElementById("result").innerText = data.error;
+          }
+        } catch (err) {
+          document.getElementById("result").innerText =
+            "Error connecting to server.";
+          console.error(err);
+        }
+      }
+    </script>
+  </body>
+</html>
